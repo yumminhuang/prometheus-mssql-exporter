@@ -9,14 +9,21 @@ const metrics = require('./metrics').metrics;
 
 let config = {
     connect: {
-        server: process.env["SERVER"],
-        userName: process.env["USERNAME"],
-        password: process.env["PASSWORD"],
+      server: process.env["SERVER"],
+      options: {
+          database: process.env["DATABASE"],
+          port: process.env["PORT"] || 1433,
+          rowCollectionOnRequestCompletion: true
+          // If you're on Windows Azure, you will need this:
+          encrypt: true,
+      },
+      authentication: {
+        type: "default",
         options: {
-            port: process.env["PORT"] || 1433,
-            encrypt: true,
-            rowCollectionOnRequestCompletion: true
+          userName: process.env["USERNAME"],
+          password: process.env["PASSWORD"]
         }
+      }
     },
     port: process.env["EXPOSE"] || 4000
 };
@@ -24,10 +31,13 @@ let config = {
 if (!config.connect.server) {
     throw new Error("Missing SERVER information")
 }
-if (!config.connect.userName) {
+if (!config.connect.options.database) {
+    throw new Error("Missing DATABASE information")
+}
+if (!config.connect.authentication.options.userName) {
     throw new Error("Missing USERNAME information")
 }
-if (!config.connect.password) {
+if (!config.connect.authentication.options.password) {
     throw new Error("Missing PASSWORD information")
 }
 
